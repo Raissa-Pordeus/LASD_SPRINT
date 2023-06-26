@@ -1,0 +1,132 @@
+//controle de unidade//
+module Control_Unit (
+    input [5:0] OP,
+    input [5:0] Funct,
+    output reg Jump, MemtoReg, MemWrite, Branch, ULASrc, RegDst, RegWrite,
+    output reg [2:0] ULAControl
+);
+
+    Instruction_Decoder decoder (
+        .OP(OP),
+        .Funct(Funct),
+        .Jump(Jump),
+        .MemtoReg(MemtoReg),
+        .MemWrite(MemWrite),
+        .Branch(Branch),
+        .ULASrc(ULASrc),
+        .RegDst(RegDst),
+        .RegWrite(RegWrite)
+    );
+    
+    ALU_Control alu_control (
+        .OP(OP),
+        .Funct(Funct),
+        .ULAControl(ULAControl)
+    );
+    
+    Data_Memory data_memory (
+        .OP(OP),
+        .MemWrite(MemWrite)
+    );
+    
+    always @ (*) begin
+        case({OP, Funct})
+            {6'b000011}: // jal
+                begin
+                    RegWrite = 1'b1;
+                    RegDst = 1'b0;
+                    ULASrc = 1'b0;
+                    Jump = 1'b1;
+                    MemtoReg = 1'b0;
+                    MemWrite = 1'b0;
+                    Branch = 1'b0;
+                    ULAControl = 3'b000; // Set ULAControl to the desired value for jal
+                end
+            
+            {6'b000000, 6'b001000}: // jr
+                begin
+                    RegWrite = 1'b0;
+                    RegDst = 1'b0;
+                    ULASrc = 1'b0;
+                    Jump = 1'b1;
+                    MemtoReg = 1'b0;
+                    MemWrite = 1'b0;
+                    Branch = 1'b0;
+                    ULAControl = 3'b000; // Set ULAControl to the desired value for jr
+                end
+            
+            {6'b001100}: // andi
+                begin
+                    RegWrite = 1'b1;
+                    RegDst = 1'b0;
+                    ULASrc = 1'b1;
+                    Jump = 1'b0;
+                    MemtoReg = 1'b0;
+                    MemWrite = 1'b0;
+                    Branch = 1'b0;
+                    ULAControl = 3'b000; // Set ULAControl to the desired value for andi
+                end
+            
+            {6'b001101}: // ori
+                begin
+                    RegWrite = 1'b1;
+                    RegDst = 1'b0;
+                    ULASrc = 1'b1;
+                    Jump = 1'b0;
+                    MemtoReg = 1'b0;
+                    MemWrite = 1'b0;
+                    Branch = 1'b0;
+                    ULAControl = 3'b000; // Set ULAControl to the desired value for ori
+                end
+            
+            {6'b000101}: // bne
+                begin
+                    RegWrite = 1'b0;
+                    RegDst = 1'b0;
+                    ULASrc = 1'b0;
+                    Jump = 1'b0;
+                    MemtoReg = 1'b0;
+                    MemWrite = 1'b0;
+                    Branch = 1'b1;
+                    ULAControl = 3'b011; // Set ULAControl to the desired value for bne
+                end
+            
+            {6'b000000, 6'b100111}: // nor
+                begin
+                    RegWrite = 1'b1;
+                    RegDst = 1'b1;
+                    ULASrc = 1'b0;
+                    Jump = 1'b0;
+                    MemtoReg = 1'b0;
+                    MemWrite = 1'b0;
+                    Branch = 1'b0;
+                    ULAControl = 3'b011; // Set ULAControl to the desired value for nor
+                end
+            
+            {6'b000000, 6'b000010}: // srl
+                begin
+                    RegWrite = 1'b1;
+                    RegDst = 1'b1;
+                    ULASrc = 1'b0;
+                    Jump = 1'b0;
+                    MemtoReg = 1'b0;
+                    MemWrite = 1'b0;
+                    Branch = 1'b0;
+                    ULAControl = 3'b110; // Set ULAControl to the desired value for srl
+                end
+            
+            default:
+                begin
+                    RegWrite = 1'b0;
+                    RegDst = 1'b0;
+                    ULASrc = 1'b0;
+                    Jump = 1'b0;
+                    MemtoReg = 1'b0;
+                    MemWrite = 1'b0;
+                    Branch = 1'b0;
+                    ULAControl = 3'b000;
+                end
+        endcase
+    end
+
+endmodule

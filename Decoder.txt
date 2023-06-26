@@ -1,0 +1,31 @@
+module decoder (
+  input [3:0] _4bits,
+  output reg [6:0] display
+);
+
+  reg [15:0] table;
+
+  always @(*) begin
+    display = table[_4bits];
+  end
+
+  initial begin
+    table[0] = 7'b0000001;
+    table[1] = 7'b1001111;
+    table[2] = 7'b0010010;
+    table[3] = 7'b0000110;
+    table[4] = 7'b1001100;
+    table[5] = 7'b0100100;
+    table[6] = 7'b0100000;
+    table[7] = 7'b0001111;
+    table[8] = 7'b0000000;
+    table[9] = 7'b0001100;
+    table[10] = 7'b0001000;
+    table[11] = 7'b1100000;
+    table[12] = 7'b0110001;
+    table[13] = 7'b1000010;
+    table[14] = 7'b0110000;
+    table[15] = 7'b0111000;
+  end
+
+endmodule

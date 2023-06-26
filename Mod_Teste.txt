@@ -1,0 +1,122 @@
+//Raissa Tainá Pordeus Ferreira
+module teste(
+  input [7:0] wd3,         // Write Data
+  input clk, we3,         // Clock and Write Enable
+  input [2:0] wa3, ra1, ra2, // Write Address, Register Data 1 and Register Data 2
+  input interrupt,        // Interrupt signal
+  input [5:0] OP, Funct,  // Control signals
+  input [3:0] _4bits,     // Decoder input
+  input Clk_50MHz,        // 50MHz clock input
+  output reg Clk_1Hz,     // 1Hz clock output
+  output reg [6:0] display, // Decoder output
+  output reg [31:0] Instr  // Instruction Memory output
+);
+  
+  RegisterFile regFile (
+    .wd3(wd3),
+    .clk(clk),
+    .we3(we3),
+    .wa3(wa3),
+    .ra1(ra1),
+    .ra2(ra2),
+    .interrupt(interrupt),
+    .rd1(rd1),
+    .rd2(rd2),
+    .S0(S0),
+    .S1(S1),
+    .S2(S2),
+    .S3(S3),
+    .S4(S4),
+    .S5(S5),
+    .S6(S6),
+    .S7(S7)
+  );
+  
+  Control_Unit controlUnit (
+    .OP(OP),
+    .Funct(Funct),
+    .Jump(Jump),
+    .MemtoReg(MemtoReg),
+    .MemWrite(MemWrite),
+    .Branch(Branch),
+    .ULASrc(ULASrc),
+    .RegDst(RegDst),
+    .RegWrite(RegWrite),
+    .ULAControl(ULAControl)
+  );
+  
+  decoder dec(
+    ._4bits(_4bits),
+    .display(display)
+  );
+  
+  divide_frequency freqDiv(
+    .Clk_50MHz(Clk_50MHz),
+    .Clk_1Hz(Clk_1Hz)
+  );
+  
+  Instr_Mem instrMem(
+    .A(_4bits),  // Assuming _4bits is connected to the address input
+    .RD(Instr)   // Connecting the instruction memory output to Instr
+  );
+ LCD_Controller lcdController (
+    .iDATA(iDATA),
+    .iRS(iRS),
+    .iStart(iStart),
+    .oDone(oDone),
+    .iCLK(iCLK),
+    .iRST_N(iRST_N),
+    .LCD_DATA(LCD_DATA),
+    .LCD_RW(LCD_RW),
+    .LCD_EN(LCD_EN),
+    .LCD_RS(LCD_RS)
+  );
+ MUX2_1 mux (
+    .E0(E0),
+    .E1(E1),
+    .sel(sel),
+    .saida(saida)
+  );
+ParallelIN parallelIN (
+    .Address(Address),
+    .MemData(MemData),
+    .DataIn(DataIn),
+    .RegData(RegData)
+  );
+ParallelOUT parallelOUT (
+    .Address(Address),
+    .RegData(RegData),
+    .we(we),
+    .clk(clk),
+    .wren(wren),
+    .DataOut(DataOut)
+  );
+PC pc (
+    .PCin(PCin),
+    .clk(clk),
+    .PC(PC)
+  );
+RamDataMem ram (
+    .address(address),
+    .clock(clock),
+    .data(data),
+    .wren(wren),
+    .q(q)
+  );
+RomInstMem instr_mem(.address(w_PC), .q(w_Inst), .clock(CLOCK_50));
+ULA ula_inst (
+    .SrcA(SrcA),
+    .SrcB(SrcB),
+    .ULAControl(ULAControl),
+    .ULAResult(ULAResult),
+    .Z(Z)
+  );
+ULA ula_inst (
+    .SrcA(SrcA),
+    .SrcB(SrcB),
+    .ULAControl(ULAControl),
+    .ULAResult(ULAResult),
+    .Z(Z)
+  );
+  
+endmodule
